@@ -130,12 +130,14 @@
     "webpack-hot-middleware": "^2.18.2",
     "webpack-merge": "^4.1.0"
   },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  },
   "config": {
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
-    },
-    "ghooks": {
-      "commit-msg": "commitlint -E GIT_PARAMS"
     }
   }
 }
