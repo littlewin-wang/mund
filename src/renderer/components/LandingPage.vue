@@ -33,10 +33,10 @@
     .fake-title-bar {
       -webkit-app-region: drag;
       width: 100%;
-      height: 24px;
-      line-height: 24px;
+      height: 22px;
+      line-height: 22px;
       text-align: center;
-      font-size: 12px;
+      font-size: 14px;
       z-index: 99;
       .handle-bar {
         position: absolute;

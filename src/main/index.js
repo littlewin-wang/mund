@@ -20,9 +20,19 @@ function createWindow () {
    * Initial window options
    */
   mainWindow = new BrowserWindow({
-    height: 768,
+    title: 'Mund',
     width: 1024,
-    frame: false
+    height: 768,
+    frame: true,
+    center: true,
+    fullscreenable: false,
+    resizable: false,
+    vibrancy: 'ultra-dark',
+    titleBarStyle: 'hidden',
+    transparent: true,
+    webPreferences: {
+      backgroundThrottling: false
+    }
   })
 
   mainWindow.loadURL(winURL)
