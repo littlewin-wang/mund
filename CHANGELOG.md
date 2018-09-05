@@ -6,6 +6,7 @@
 
 * test electron features ([c83ab99](https://github.com/coding-tool/mund/commit/c83ab99))
 * **package.json:** add pre-commit check process ([2393974](https://github.com/coding-tool/mund/commit/2393974))
+* **package.json:** fix pre commit check step ([0ef4223](https://github.com/coding-tool/mund/commit/0ef4223))
 
 
 
