@@ -5,7 +5,7 @@ import App from './App'
 import router from './router'
 import store from './store'
 
-import { Icon, Tabs, TabPane } from 'iview'
+import { Icon, Tabs, TabPane, Breadcrumb, BreadcrumbItem } from 'iview'
 import 'iview/dist/styles/iview.css'
 
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'))
@@ -15,10 +15,12 @@ Vue.config.productionTip = false
 Vue.component('Icon', Icon)
 Vue.component('Tabs', Tabs)
 Vue.component('TabPane', TabPane)
+Vue.component('Breadcrumb', Breadcrumb)
+Vue.component('BreadcrumbItem', BreadcrumbItem)
 
 /* eslint-disable no-new */
 new Vue({
-  components: { App, Icon, Tabs, TabPane },
+  components: { App },
   router,
   store,
   template: '<App/>'
