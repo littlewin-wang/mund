@@ -54,11 +54,13 @@
     padding: 0;
     margin: 0;
     height: 100%;
+    background: #262441;
   }
 
   #app {
     .title-bar {
       -webkit-app-region: drag;
+      user-select: none;
       width: 100%;
       height: 22px;
       line-height: 22px;
@@ -96,7 +98,7 @@
           flex: 0 0 50%;
           text-align: right;
           i {
-            margin: 0 3px;
+            margin: 0 4px;
             font-size: 20px;
             line-height: 24px;
             cursor: pointer;

@@ -6,7 +6,7 @@ import router from './router'
 import store from './store'
 
 import { Icon, Tabs, TabPane, Breadcrumb, BreadcrumbItem } from 'iview'
-import 'iview/dist/styles/iview.css'
+import '../../my-theme/dist/iview.css'
 
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'))
 Vue.http = Vue.prototype.$http = axios
