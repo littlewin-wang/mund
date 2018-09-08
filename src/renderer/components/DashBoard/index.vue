@@ -5,7 +5,7 @@
         <Dropdown @on-click="changeProject" style="font-size: 14px;">
           <a href="javascript:void(0)">
             {{ project || 'Projects' }}
-            <Icon type="arrow-down-b"></Icon>
+            <Icon type="chevron-down"></Icon>
           </a>
           <DropdownMenu slot="list" >
             <DropdownItem name="Projects">Projects</DropdownItem>
@@ -14,7 +14,7 @@
             <DropdownItem name="express-demo">express-demo</DropdownItem>
           </DropdownMenu>
         </Dropdown>
-        <div class="count">
+        <div class="count" style="color: #9b9b9b">
           <span>{{ total }}</span> Total
         </div>
       </div>
@@ -35,23 +35,53 @@
         </div>
       </div>
     </div>
-    <div class="main"></div>
+    <div class="main">
+      <div class="header">
+        <Row type="flex" align="middle" style="color: #9b9b9b; height: 40px;">
+          <Col span="2">Type</Col>
+          <Col span="5" style="cursor: pointer">
+            <span @click="handleReverse('name')">Project Name <Icon :type="name?'chevron-down':'chevron-up'"></Icon></span>
+          </Col>
+          <Col span="5">Tags</Col>
+          <Col span="4" style="cursor: pointer">
+            <span @click="handleReverse('modify')"> Last Modified <Icon :type="modify?'chevron-down':'chevron-up'"></Icon></span>
+          </Col>
+          <Col span="7">NPM Script</Col>
+          <Col span="1"></Col>
+        </Row>
+      </div>
+      <div class="list">
+        <Item></Item>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
+import Item from './Item/index'
+
 export default {
   name: 'dashboard',
+  components: {
+    Item
+  },
   data () {
     return {
       project: '',
       total: 3,
-      search: ''
+      search: '',
+      name: true,
+      modify: true
     }
   },
   methods: {
     changeProject (name) {
       this.project = name
+    },
+    handleReverse (type) {
+      if (type && this.hasOwnProperty(type)) {
+        this[type] = !this[type]
+      }
     }
   }
 }
@@ -80,6 +110,12 @@ export default {
         .action {
           margin-left: 20px;
         }
+      }
+    }
+    .main {
+      padding: 10px 0;
+      .header {
+        padding: 0 10px;
       }
     }
   }
