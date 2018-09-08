@@ -19,9 +19,19 @@
         </div>
       </div>
       <div class="right">
-        <Input v-model="search" size="small" icon="ios-search" placeholder="Enter something..." style="width: 200px" />
+        <Input v-model="search" size="small" icon="ios-search" placeholder="Search For..." style="width: 200px" />
         <div class="action">
-          <Button type="primary" icon="ios-lightbulb" size="small">Active Project</Button><Button type="success" icon="android-add" size="small" style="margin-left: 10px">New Project</Button>
+          <Button type="primary" icon="ios-lightbulb" size="small">Active Project</Button>
+          <Dropdown trigger="click" placement="bottom-end" style="font-size: 14px;">
+            <a href="javascript:void(0)">
+              <Button type="success" icon="android-add" size="small" style="margin-left: 10px">New Project</Button>
+            </a>
+            <DropdownMenu slot="list" >
+              <DropdownItem name="local">Import Local Project</DropdownItem>
+              <DropdownItem name="github">Import Github Project</DropdownItem>
+              <DropdownItem name="app">Create App</DropdownItem>
+            </DropdownMenu>
+          </Dropdown>
         </div>
       </div>
     </div>
