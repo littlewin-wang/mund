@@ -1,5 +1,5 @@
 <template>
-  <div class="item">
+  <div class="item" :class="{ 'is-expand': isExpand }">
     <Row class="basic" type="flex" align="middle">
       <Col span="2">
         <div class="type">
@@ -7,32 +7,37 @@
         </div>
       </Col>
       <Col span="5">
-        <span>vue-cli</span>
+        <h5 style="font-size: 14px;">vue-cli</h5>
+        <span v-if="isExpand" style="font-size: 12px; color: #9b9b9b">Last Modified: Yesterday</span>
       </Col>
       <Col span="5">
-        <Tag color="blue">标签一</Tag>
-        <Tag color="green">标签二</Tag>
-        <Tooltip placement="top-end">
-          <Tag type="border">+2</Tag>
-          <div slot="content">
-            <Tag color="red">标签三</Tag>
-            <Tag color="yellow">标签四</Tag>
-          </div>
-        </Tooltip>
+        <div v-if="!isExpand">
+          <Tag color="blue">标签一</Tag>
+          <Tag color="green">标签二</Tag>
+          <Tooltip placement="top-end">
+            <Tag type="border">+2</Tag>
+            <div slot="content">
+              <Tag color="red">标签三</Tag>
+              <Tag color="yellow">标签四</Tag>
+            </div>
+          </Tooltip>
+        </div>
       </Col>
       <Col span="4">
-        <span>Yesterday</span>
+        <span v-if="!isExpand">Yesterday</span>
       </Col>
       <Col span="7">
-        <Button type="info" size="small">install</Button>
-        <Button type="primary" size="small">dev</Button>
-        <Button type="success" size="small">build</Button>
+        <div v-if="!isExpand">
+          <Button type="info" size="small">install</Button>
+          <Button type="primary" size="small">dev</Button>
+          <Button type="success" size="small">build</Button>
+        </div>
       </Col>
       <Col span="1">
-        <Button size="small" type="ghost" shape="circle" icon="chevron-down"></Button>
+        <Button size="small" type="ghost" shape="circle" :icon="isExpand ? 'chevron-up' : 'chevron-down'" @click="isExpand=!isExpand"></Button>
       </Col>
     </Row>
-    <div class="detail">
+    <div class="detail" v-if="isExpand">
       <div class="line"></div>
       <Row type="flex" justify="center">
         <Col span="20" class="project-content">
@@ -104,7 +109,12 @@
 
 <script>
 export default {
-  name: 'item'
+  name: 'item',
+  data () {
+    return {
+      isExpand: false
+    }
+  }
 }
 </script>
 
@@ -197,5 +207,8 @@ export default {
         }
       }
     }
+  }
+  .is-expand {
+    margin: 10px 0;
   }
 </style>
