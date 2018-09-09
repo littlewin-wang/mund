@@ -14,7 +14,7 @@
         <div v-if="!isExpand">
           <Tag color="blue">标签一</Tag>
           <Tag color="green">标签二</Tag>
-          <Tooltip placement="top-end">
+          <Tooltip placement="right">
             <Tag type="border">+2</Tag>
             <div slot="content">
               <Tag color="red">标签三</Tag>
