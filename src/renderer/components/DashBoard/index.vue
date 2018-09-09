@@ -51,7 +51,21 @@
         </Row>
       </div>
       <div class="list">
-        <Item></Item>
+        <div class="container">
+          <Item></Item>
+          <Item></Item>
+          <Item></Item>
+          <Item></Item>
+          <Item></Item>
+          <Item></Item>
+          <Item></Item>
+          <Item></Item>
+          <Item></Item>
+          <Item></Item>
+        </div>
+      </div>
+      <div class="pagination">
+        <Page :current="1" :total="50" simple size="small"></Page>
       </div>
     </div>
   </div>
@@ -116,6 +130,25 @@ export default {
       padding: 10px 0;
       .header {
         padding: 0 10px;
+      }
+      .list {
+        position: relative;
+        width: 100%;
+        height: 500px;
+        overflow: hidden;
+        .container {
+          position: absolute;
+          left: 0;
+          top: 0;
+          right: -15px;
+          bottom: 0;
+          overflow-x: hidden;
+          overflow-y: scroll;
+        }
+      }
+      .pagination {
+        float: right;
+        margin-top: 4px;
       }
     }
   }

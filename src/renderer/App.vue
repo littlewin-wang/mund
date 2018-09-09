@@ -32,6 +32,11 @@
         <router-view></router-view>
       </div>
     </div>
+    <div class="copyright">
+      <span>Mund</span>
+      <Icon type="heart" color="#ed3f14"></Icon>
+      <span>Copyright 2018</span>
+    </div>
   </div>
 </template>
 
@@ -84,7 +89,7 @@
     .content {
       position: absolute;
       top: 22px;
-      bottom: 0;
+      bottom: 22px;
       width: 100%;
       padding: 10px;
       .control-bar {
@@ -108,11 +113,18 @@
       .view-area {
         position: absolute;
         top: 34px;
-        bottom: 0;
+        bottom: 0px;
         left: 0;
         right: 0;
         padding: 10px;
       }
+    }
+    .copyright {
+      position: absolute;
+      bottom: 0px;
+      width: 100%;
+      height: 22px;
+      text-align: center;
     }
   }
 </style>
