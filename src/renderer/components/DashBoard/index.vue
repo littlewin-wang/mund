@@ -52,16 +52,7 @@
       </div>
       <div class="list">
         <div class="container">
-          <Item></Item>
-          <Item></Item>
-          <Item></Item>
-          <Item></Item>
-          <Item></Item>
-          <Item></Item>
-          <Item></Item>
-          <Item></Item>
-          <Item></Item>
-          <Item></Item>
+          <Item class="item" v-for="index in 10" :key="index" :class="{ 'is-odd' : index % 2 }"></Item>
         </div>
       </div>
       <div class="pagination">
@@ -144,6 +135,12 @@ export default {
           bottom: 0;
           overflow-x: hidden;
           overflow-y: scroll;
+          .item {
+            background: #34344D;
+          }
+          .is-odd {
+            background: #3B3B56;
+          }
         }
       }
       .pagination {

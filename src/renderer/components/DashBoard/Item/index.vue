@@ -122,7 +122,6 @@ export default {
   .item {
     width: 100%;
     padding: 0 10px;
-    background: #34344D;
     border-radius: 6px;
     .basic {
       height: 50px;
@@ -211,5 +210,6 @@ export default {
   }
   .is-expand {
     margin: 10px 0;
+    background: #1B1B30 !important;
   }
 </style>
