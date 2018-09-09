@@ -79,22 +79,30 @@
             <div class="script">
               <h5>NPM Script</h5>
               <div class="list">
-                <div class="script-item">
-                  <h5>vue:dev</h5>
-                  <p class="script-cmd">incididunt ut labore et dolore</p>
-                </div>
-                <div class="script-item">
-                  <h5>vue:dev</h5>
-                  <p class="script-cmd">incididunt ut labore et dolore</p>
-                </div>
-                <div class="script-item">
-                  <h5>vue:dev</h5>
-                  <p class="script-cmd">incididunt ut labore et dolore</p>
-                </div>
-                <div class="script-item">
-                  <h5>vue:dev</h5>
-                  <p class="script-cmd">incididunt ut labore et dolore</p>
-                </div>
+                <Tooltip placement="top-end">
+                  <Button class="script-item">vue:dev</Button>
+                  <div slot="content">
+                    <p class="script-cmd">incididunt ut labore et dolore</p>
+                  </div>
+                </Tooltip>
+                <Tooltip placement="top-end">
+                  <Button class="script-item">vue:dev</Button>
+                  <div slot="content">
+                    <p class="script-cmd">incididunt ut labore et dolore</p>
+                  </div>
+                </Tooltip>
+                <Tooltip placement="top-end">
+                  <Button class="script-item">vue:dev</Button>
+                  <div slot="content">
+                    <p class="script-cmd">incididunt ut labore et dolore</p>
+                  </div>
+                </Tooltip>
+                <Tooltip placement="top-end">
+                  <Button class="script-item">vue:dev</Button>
+                  <div slot="content">
+                    <p class="script-cmd">incididunt ut labore et dolore</p>
+                  </div>
+                </Tooltip>
                 <Button class="script-item" icon="ios-plus-empty" type="dashed">
                   Add
                 </Button>
@@ -179,22 +187,12 @@ export default {
                 margin: 4px;
                 padding: 0 4px;
                 width: 120px;
-                height: 80px;
+                height: 40px;
                 background: #3b3b56;
                 border-radius: 4px;
                 cursor: pointer;
                 &:hover {
                   background: #3f3f63;
-                }
-                h5 {
-                  font-weight: normal;
-                  font-size: 14px;
-                }
-                .script-cmd {
-                  padding: 4px 0;
-                  border-top: 1px solid #9b9b9b;
-                  font-size: 12px;
-                  color: #9b9b9b;
                 }
               }
             }
