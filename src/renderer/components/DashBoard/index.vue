@@ -53,7 +53,7 @@
         </div>
         <div class="list">
           <div class="container">
-            <Item class="item" v-for="(params, index) in projects" :params="params" :key="index" :class="{ 'is-odd' : index % 2 }"></Item>
+            <Item class="item" v-for="(params, index) in projects" :params="params" :key="index" :class="{ 'is-odd' : index % 2 }" @delete="projects.splice(index, 1)"></Item>
           </div>
         </div>
         <div class="pagination">

@@ -91,6 +91,7 @@
           </div>
         </Col>
       </Row>
+      <Button type="error" long size="small" @click="handleDelete">DELETE</Button>
     </div>
   </div>
 </template>
@@ -107,6 +108,7 @@ export default {
     }
   },
   methods: {
+    // determine the button type with the string
     typeHash (str) {
       if ('dev'.indexOf(str.toLowerCase()) !== -1) {
         return 'primary'
@@ -117,6 +119,17 @@ export default {
       } else {
         return 'info'
       }
+    },
+
+    // delete this project
+    handleDelete () {
+      this.$Modal.warning({
+        title: `Delete ${this.params.name}?`,
+        content: `Will delete ${this.params.name}, confirm?`,
+        onOk: () => {
+          this.$emit('delete')
+        }
+      })
     }
   }
 }
@@ -146,7 +159,7 @@ export default {
       }
     }
     .detail {
-      // height: 200px;
+      padding-bottom: 10px;
       .line {
         height: 1px;
         background: linear-gradient(to right, transparent, #9b9b9b, transparent)
