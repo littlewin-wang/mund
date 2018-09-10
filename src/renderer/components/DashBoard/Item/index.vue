@@ -7,7 +7,7 @@
         </div>
       </Col>
       <Col span="5">
-        <h5 style="font-size: 14px;">vue-cli</h5>
+        <h5 style="font-size: 14px;">{{ params.name }}</h5>
         <span v-if="isExpand" style="font-size: 12px; color: #9b9b9b">Last Modified: Yesterday</span>
       </Col>
       <Col span="5">
@@ -28,9 +28,7 @@
       </Col>
       <Col span="7">
         <div v-if="!isExpand">
-          <Button type="info" size="small">install</Button>
-          <Button type="primary" size="small">dev</Button>
-          <Button type="success" size="small">build</Button>
+          <Button class="cmd-button" :type="typeHash(script)" size="small" v-for="(script, index) in Object.keys(params.scripts).slice(0, 3)">{{ script }}</Button>
         </div>
       </Col>
       <Col span="1">
@@ -44,13 +42,13 @@
           <div class="left">
             <div class="desc">
               <span>
-                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                {{ params.description }}
               </span>
               <Icon type="edit" style="margin-left: 4px;"></Icon>
             </div>
             <div class="version">
               <Icon class="icon" color="#2d8cf0" size="18" type="ios-information"></Icon>
-              <span>{{ '1.0.0' }}</span>
+              <span>{{ params.version }}</span>
             </div>
             <div class="git">
               <Icon class="icon" size="18" type="social-github"></Icon>
@@ -60,7 +58,7 @@
             </div>
             <div class="license">
               <Icon class="icon" color="#ff9900" size="18" type="locked"></Icon>
-              <span>MIT</span>
+              <span>{{ params.license }}</span>
             </div>
           </div>
           <div class="line">
@@ -79,28 +77,10 @@
             <div class="script">
               <h5>NPM Script</h5>
               <div class="list">
-                <Tooltip placement="top-end">
-                  <Button class="script-item">vue:dev</Button>
+                <Tooltip placement="top-end" v-for="(cmd, key) in params.scripts">
+                  <Button class="script-item">{{ key }}</Button>
                   <div slot="content">
-                    <p class="script-cmd">incididunt ut labore et dolore</p>
-                  </div>
-                </Tooltip>
-                <Tooltip placement="top-end">
-                  <Button class="script-item">vue:dev</Button>
-                  <div slot="content">
-                    <p class="script-cmd">incididunt ut labore et dolore</p>
-                  </div>
-                </Tooltip>
-                <Tooltip placement="top-end">
-                  <Button class="script-item">vue:dev</Button>
-                  <div slot="content">
-                    <p class="script-cmd">incididunt ut labore et dolore</p>
-                  </div>
-                </Tooltip>
-                <Tooltip placement="top-end">
-                  <Button class="script-item">vue:dev</Button>
-                  <div slot="content">
-                    <p class="script-cmd">incididunt ut labore et dolore</p>
+                    <div class="script-cmd" style="width: 200px; white-space: pre-wrap;">{{ cmd }}</div>
                   </div>
                 </Tooltip>
                 <Button class="script-item" icon="ios-plus-empty" type="dashed">
@@ -118,9 +98,25 @@
 <script>
 export default {
   name: 'item',
+  props: {
+    params: Object
+  },
   data () {
     return {
       isExpand: false
+    }
+  },
+  methods: {
+    typeHash (str) {
+      if ('dev'.indexOf(str.toLowerCase()) !== -1) {
+        return 'primary'
+      } else if ('build'.indexOf(str.toLowerCase()) !== -1) {
+        return 'success'
+      } else if ('test'.indexOf(str.toLowerCase()) !== -1) {
+        return 'warning'
+      } else {
+        return 'info'
+      }
     }
   }
 }
@@ -142,6 +138,11 @@ export default {
         color: #fff;
         background: #7ED321;
         text-align: center;
+      }
+      .cmd-button {
+        &:not(:first-child) {
+          margin-left: 4px;
+        }
       }
     }
     .detail {
@@ -190,7 +191,6 @@ export default {
                 height: 40px;
                 background: #3b3b56;
                 border-radius: 4px;
-                cursor: pointer;
                 &:hover {
                   background: #3f3f63;
                 }

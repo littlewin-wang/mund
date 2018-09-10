@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <div class="projects" v-if="count">
+    <div class="projects" v-if="projects.length">
       <div class="control">
         <div class="left">
           <Dropdown @on-click="changeProject" style="font-size: 14px;">
@@ -23,7 +23,7 @@
           <Input v-model="search" size="small" icon="ios-search" placeholder="Search For..." style="width: 200px" />
           <div class="action">
             <Button type="primary" icon="ios-lightbulb" size="small">Active Project</Button>
-            <Dropdown trigger="click" placement="bottom-end" style="font-size: 14px;">
+            <Dropdown @on-click="importFile" trigger="click" placement="bottom-end" style="font-size: 14px;">
               <a href="javascript:void(0)">
                 <Button type="success" icon="android-add" size="small" style="margin-left: 10px">New Project</Button>
               </a>
@@ -53,7 +53,7 @@
         </div>
         <div class="list">
           <div class="container">
-            <Item class="item" v-for="index in 10" :key="index" :class="{ 'is-odd' : index % 2 }"></Item>
+            <Item class="item" v-for="(params, index) in projects" :params="params" :key="index" :class="{ 'is-odd' : index % 2 }"></Item>
           </div>
         </div>
         <div class="pagination">
@@ -67,7 +67,7 @@
       </div>
       <h2>Looks like you don't have ant projects.</h2>
       <p>Let's fix that by importing a new project.</p>
-      <Dropdown trigger="click" placement="bottom-end" style="font-size: 14px;">
+      <Dropdown @on-click="importFile" trigger="click" placement="bottom-end" style="font-size: 14px;">
         <a href="javascript:void(0)">
           <Button type="success" icon="android-add" style="margin-left: 10px">New Project</Button>
         </a>
@@ -91,12 +91,12 @@ export default {
   },
   data () {
     return {
-      count: 0,
       project: '',
       total: 3,
       search: '',
       name: true,
-      modify: true
+      modify: true,
+      projects: []
     }
   },
   methods: {
@@ -106,6 +106,28 @@ export default {
     handleReverse (type) {
       if (type && this.hasOwnProperty(type)) {
         this[type] = !this[type]
+      }
+    },
+    importFile (type) {
+      if (type === 'local') {
+        const dialog = require('electron').remote.dialog
+        dialog.showOpenDialog({ properties: ['openDirectory', 'multiSelections'] }, (filename) => {
+          if (filename.length) {
+            const fs = require('fs')
+            filename.forEach(name => {
+              fs.readFile(name.concat('/package.json'), 'utf-8', (err, data) => {
+                if (err) {
+                  console.log(err)
+                } else {
+                  let project = JSON.parse(data)
+                  if (!this.projects.find(p => p.name === project.name)) {
+                    this.projects.push(project)
+                  }
+                }
+              })
+            })
+          }
+        })
       }
     }
   }
