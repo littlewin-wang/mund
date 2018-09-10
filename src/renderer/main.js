@@ -8,11 +8,16 @@ import store from './store'
 import iView from 'iview'
 import '../../my-theme/dist/iview.css'
 
+import filters from './filters'
+
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'))
 Vue.http = Vue.prototype.$http = axios
 Vue.config.productionTip = false
 
 Vue.use(iView)
+
+// use fiters
+Object.keys(filters).forEach(key => Vue.filter(key, filters[key]))
 
 /* eslint-disable no-new */
 new Vue({

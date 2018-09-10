@@ -84,6 +84,8 @@
 <script>
 import Item from './Item/index'
 
+import { parseBranch, parseUrl } from '@/utils/git/info'
+
 export default {
   name: 'dashboard',
   components: {
@@ -110,21 +112,36 @@ export default {
     },
     importFile (type) {
       if (type === 'local') {
+        // open the file dialog
         const dialog = require('electron').remote.dialog
         dialog.showOpenDialog({ properties: ['openDirectory', 'multiSelections'] }, (filename) => {
           if (filename.length) {
             const fs = require('fs')
             filename.forEach(name => {
-              fs.readFile(name.concat('/package.json'), 'utf-8', (err, data) => {
-                if (err) {
-                  console.log(err)
-                } else {
-                  let project = JSON.parse(data)
-                  if (!this.projects.find(p => p.name === project.name)) {
-                    this.projects.push(project)
-                  }
-                }
-              })
+              let params = {}
+
+              // retrieve git infomations
+              params.git = {
+                branch: parseBranch(name),
+                url: parseUrl(name)
+              }
+
+              // retrieve stat infomations
+              params.stat = fs.statSync(name)
+
+              // retrieve npm infomations
+              if (!fs.existsSync(name.concat('/package.json'))) {
+                throw new Error(`${name} is not a npm project.`)
+              } else {
+                params.package = JSON.parse(fs.readFileSync(name.concat('/package.json')))
+              }
+
+              // retrieve all infomation correctly
+              if (params.stat && params.package) {
+                this.projects.push(params)
+              } else {
+                this.$Message.warning(`This directory's infomation is not correct. Check it please.`)
+              }
             })
           }
         })
