@@ -14,11 +14,11 @@
       </Col>
       <Col span="5">
         <div v-if="!isExpand">
-          <Tag closable color="blue" :name="tag" v-for="tag in params.tags.slice(0, 2)" @on-close="handleDeleteTag">{{ tag }}</Tag>
+          <Tag closable :color="tagColor(tag)" :name="tag" v-for="tag in params.tags.slice(0, 2)" @on-close="handleDeleteTag">{{ tag }}</Tag>
           <Tooltip placement="right-start" v-if="params.tags.length > 2">
             <Tag type="border">+{{ params.tags.length - 2 }}</Tag>
             <div slot="content" style="white-space: pre-wrap; width: 200px;">
-              <Tag closable color="red" :name="tag" v-for="tag in params.tags.slice(2)" @on-close="handleDeleteTag">{{ tag }}</Tag>
+              <Tag closable :color="tagColor(tag)" :name="tag" v-for="tag in params.tags.slice(2)" @on-close="handleDeleteTag">{{ tag }}</Tag>
             </div>
           </Tooltip>
         </div>
@@ -28,7 +28,7 @@
       </Col>
       <Col span="7">
         <div v-if="!isExpand">
-          <Button class="cmd-button" :type="typeHash(script)" size="small" v-for="script in Object.keys(params.package.scripts).slice(0, 3)">{{ script }}</Button>
+          <Button class="cmd-button" :type="typeColor(script)" size="small" v-for="script in Object.keys(params.package.scripts).slice(0, 3)">{{ script }}</Button>
         </div>
       </Col>
       <Col span="1">
@@ -66,7 +66,7 @@
           <div class="right">
             <div class="tag">
               <h5>Tags</h5>
-              <Tag class="tag-item" closable color="blue" :name="tag" v-for="tag in params.tags" @on-close="handleDeleteTag">{{ tag }}</Tag>
+              <Tag class="tag-item" closable :color="tagColor(tag)" :name="tag" v-for="tag in params.tags" @on-close="handleDeleteTag">{{ tag }}</Tag>
               <AutoComplete
                 class="tag-item"
                 v-model="newTag"
@@ -75,7 +75,8 @@
                 placeholder="input tag"
                 size="small"
                 icon="plus"
-                @keyup.enter.native="handleAddTag"
+                @keyup.enter.native="handleAddTag(newTag)"
+                @on-select="handleAddTag"
                 style="width: 80px">
               </AutoComplete>
             </div>
@@ -115,15 +116,30 @@ export default {
   },
   methods: {
     // determine the button type with the string
-    typeHash (str) {
-      if ('dev'.indexOf(str.toLowerCase()) !== -1) {
+    typeColor (str) {
+      if (['dev'].find(type => str.toLowerCase().indexOf(type) !== -1)) {
         return 'primary'
-      } else if ('build'.indexOf(str.toLowerCase()) !== -1) {
+      } else if (['build', 'lint', 'unit'].find(type => str.toLowerCase().indexOf(type) !== -1)) {
         return 'success'
-      } else if ('test'.indexOf(str.toLowerCase()) !== -1) {
+      } else if (['test', 'demo'].find(type => str.toLowerCase().indexOf(type) !== -1)) {
         return 'warning'
       } else {
         return 'info'
+      }
+    },
+
+    // determine the tag color with the string
+    tagColor (str) {
+      if (['dev'].find(type => str.toLowerCase().indexOf(type) !== -1)) {
+        return 'green'
+      } else if (['work', 'project'].find(type => str.toLowerCase().indexOf(type) !== -1)) {
+        return '#EF6AFF'
+      } else if (['cli', 'demo'].find(type => str.toLowerCase().indexOf(type) !== -1)) {
+        return '#FF9999'
+      } else if (['test', 'e2e'].find(type => str.toLowerCase().indexOf(type) !== -1)) {
+        return 'yellow'
+      } else {
+        return 'blue'
       }
     },
 
@@ -141,18 +157,20 @@ export default {
       })
     },
 
-    handleAddTag () {
-      if (this.newTag) {
-        if (this.params.tags.find(t => t === this.newTag)) {
+    // add tag of the project
+    handleAddTag (value) {
+      if (value) {
+        if (this.params.tags.find(t => t === value)) {
           this.$Message.warning('This tag already exists.')
         } else {
-          this.params.tags.push(this.newTag)
+          this.params.tags.push(value)
         }
 
         this.newTag = ''
       }
     },
 
+    // delete ont tag
     handleDeleteTag (event, tag) {
       if (tag) {
         let index = this.params.tags.findIndex(t => t === tag)
@@ -167,7 +185,7 @@ export default {
 
     // auto filter in the exist tags
     filterMethod (value, option) {
-      if (option && typeof option === 'string') {
+      if (value !== undefined && option && typeof option === 'string') {
         return option.toUpperCase().indexOf(value.toUpperCase()) !== -1
       } else {
         return false
