@@ -2,9 +2,11 @@
   <div class="item" :class="{ 'is-expand': isExpand }">
     <Row class="basic" type="flex" align="middle">
       <Col span="2">
-        <div class="type">
-          V
-        </div>
+        <Tooltip :content="params.types[0].type" placement="right">
+          <div class="type" :style="{ backgroundColor: params.types[0].color }">
+            {{ params.types[0].type.charAt(0).toUpperCase() }}
+          </div>
+        </Tooltip>
       </Col>
       <Col span="5">
         <h5 style="font-size: 14px;">{{ params.package.name }}</h5>

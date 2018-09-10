@@ -85,6 +85,7 @@
 import Item from './Item/index'
 
 import { parseBranch, parseUrl } from '@/utils/git/info'
+import getType from '@/utils/getProjectType'
 
 export default {
   name: 'dashboard',
@@ -138,6 +139,7 @@ export default {
 
               // retrieve all infomation correctly
               if (params.stat && params.package) {
+                params.types = getType(params.package)
                 this.projects.push(params)
               } else {
                 this.$Message.warning(`This directory's infomation is not correct. Check it please.`)
