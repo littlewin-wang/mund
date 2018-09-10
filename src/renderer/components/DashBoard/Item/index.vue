@@ -14,13 +14,11 @@
       </Col>
       <Col span="5">
         <div v-if="!isExpand">
-          <Tag color="blue">标签一</Tag>
-          <Tag color="green">标签二</Tag>
-          <Tooltip placement="right">
-            <Tag type="border">+2</Tag>
-            <div slot="content">
-              <Tag color="red">标签三</Tag>
-              <Tag color="yellow">标签四</Tag>
+          <Tag closable color="blue" :name="tag" v-for="tag in params.tags.slice(0, 2)" @on-close="handleDeleteTag">{{ tag }}</Tag>
+          <Tooltip placement="right-start" v-if="params.tags.length > 2">
+            <Tag type="border">+{{ params.tags.length - 2 }}</Tag>
+            <div slot="content" style="white-space: pre-wrap; width: 200px;">
+              <Tag closable color="red" :name="tag" v-for="tag in params.tags.slice(2)" @on-close="handleDeleteTag">{{ tag }}</Tag>
             </div>
           </Tooltip>
         </div>
@@ -30,7 +28,7 @@
       </Col>
       <Col span="7">
         <div v-if="!isExpand">
-          <Button class="cmd-button" :type="typeHash(script)" size="small" v-for="(script, index) in Object.keys(params.package.scripts).slice(0, 3)">{{ script }}</Button>
+          <Button class="cmd-button" :type="typeHash(script)" size="small" v-for="script in Object.keys(params.package.scripts).slice(0, 3)">{{ script }}</Button>
         </div>
       </Col>
       <Col span="1">
@@ -68,13 +66,18 @@
           <div class="right">
             <div class="tag">
               <h5>Tags</h5>
-              <Tag color="blue">标签一</Tag>
-              <Tag color="green">标签二</Tag>
-              <Tag color="red">标签三</Tag>
-              <Tag color="yellow">标签四</Tag>
-              <Button icon="ios-plus-empty" type="dashed" size="small">
-                Add
-              </Button>
+              <Tag class="tag-item" closable color="blue" :name="tag" v-for="tag in params.tags" @on-close="handleDeleteTag">{{ tag }}</Tag>
+              <AutoComplete
+                class="tag-item"
+                v-model="newTag"
+                :data="['study', 'demo', 'work', 'develop']"
+                :filter-method="filterMethod"
+                placeholder="input tag"
+                size="small"
+                icon="plus"
+                @keyup.enter.native="handleAddTag"
+                style="width: 80px">
+              </AutoComplete>
             </div>
             <div class="script">
               <h5>NPM Script</h5>
@@ -106,6 +109,7 @@ export default {
   },
   data () {
     return {
+      newTag: '',
       isExpand: false
     }
   },
@@ -135,6 +139,39 @@ export default {
           this.$Message.info('Cancle the delete operation.')
         }
       })
+    },
+
+    handleAddTag () {
+      if (this.newTag) {
+        if (this.params.tags.find(t => t === this.newTag)) {
+          this.$Message.warning('This tag already exists.')
+        } else {
+          this.params.tags.push(this.newTag)
+        }
+
+        this.newTag = ''
+      }
+    },
+
+    handleDeleteTag (event, tag) {
+      if (tag) {
+        let index = this.params.tags.findIndex(t => t === tag)
+
+        if (index !== -1) {
+          this.params.tags.splice(index, 1)
+        } else {
+          this.$Message.warning('This tag not exists.')
+        }
+      }
+    },
+
+    // auto filter in the exist tags
+    filterMethod (value, option) {
+      if (option && typeof option === 'string') {
+        return option.toUpperCase().indexOf(value.toUpperCase()) !== -1
+      } else {
+        return false
+      }
     }
   }
 }
@@ -195,6 +232,11 @@ export default {
             h5 {
               margin-bottom: 4px;
               font-size: 14px;
+            }
+          }
+          .tag {
+            .tag-item {
+              margin: 4px;
             }
           }
           .script {

@@ -53,7 +53,7 @@
         </div>
         <div class="list">
           <div class="container">
-            <Item class="item" v-for="params in projects" :params="params" :key="params.path" :class="{ 'is-odd' : index % 2 }" @delete="projects.splice(index, 1)"></Item>
+            <Item class="item" v-for="(params, index) in projects" :params="params" :key="params.path" :class="{ 'is-odd' : index % 2 }" @delete="projects.splice(index, 1)"></Item>
           </div>
         </div>
         <div class="pagination">
@@ -119,8 +119,10 @@ export default {
           if (filename.length) {
             const fs = require('fs')
             filename.forEach(name => {
+              // init project params
               let params = {}
               params.path = name
+              params.tags = []
 
               // retrieve git infomations
               params.git = {
