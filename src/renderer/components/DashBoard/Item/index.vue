@@ -53,7 +53,17 @@
             </div>
             <div class="version">
               <Icon class="icon" color="#2d8cf0" size="18" type="ios-information"></Icon>
-              <span>{{ params.package.version }}</span>
+              <Dropdown trigger="click" @on-click="params.package.version = arguments[0]">
+                <span style="cursor: pointer; user-select: none;">
+                  {{ params.package.version }}
+                  <Icon type="chevron-down"></Icon>
+                </span>
+                <DropdownMenu slot="list" v-if="/^\d+.\d+.\d+$/.test(params.package.version)">
+                  <DropdownItem :name="version" v-for="version in generateVersion(params.package.version)">
+                    {{ version }}
+                  </DropdownItem>
+                </DropdownMenu>
+              </Dropdown>
             </div>
             <div class="git">
               <Icon class="icon" size="18" type="social-github"></Icon>
@@ -143,6 +153,18 @@ export default {
     // determine the tag color with the string
     tagColor (str) {
       return wordToRGB(str)
+    },
+
+    generateVersion (version) {
+      if (/^\d+.\d+.\d+$/.test(version)) {
+        return [
+          version.replace(/(^\d+).(\d+).(\d+$)/g, ($1, $2, $3, $4) => [$2, $3, parseInt($4, 10) + 1].join('.')),
+          version.replace(/(^\d+).(\d+).(\d+$)/g, ($1, $2, $3, $4) => [$2, parseInt($3, 10) + 1, 0].join('.')),
+          version.replace(/(^\d+).(\d+).(\d+$)/g, ($1, $2, $3, $4) => [parseInt($2, 10) + 1, 0, 0].join('.'))
+        ]
+      } else {
+        return []
+      }
     },
 
     // delete this project
