@@ -45,10 +45,10 @@
                 <span>
                   {{ params.package.description }}
                 </span>
-                <Icon type="edit" style="margin-left: 4px; cursor: pointer;" @click="isEditDesc = true, description = params.package.description"></Icon>
+                <Icon type="edit" style="margin-left: 4px; cursor: pointer;" @click="handleActiveDesc"></Icon>
               </div>
               <div v-else>
-                <Input type="textarea" :rows="4" v-model="description" size="small" placeholder="Input description..." @on-keypress="handleEditDesc"></Input>
+                <Input ref="description" type="textarea" :rows="4" v-model="description" size="small" placeholder="Input description..." @on-keypress="handleEditDesc" @on-blur="editDesc"></Input>
               </div>
             </div>
             <div class="version">
@@ -159,6 +159,18 @@ export default {
       })
     },
 
+    handleActiveDesc () {
+      this.isEditDesc = true
+      this.description = this.params.package.description
+
+      // wait for ref description rendered
+      this.$nextTick(() => {
+        if (this.$refs['description']) {
+          this.$refs['description'].focus()
+        }
+      })
+    },
+
     handleEditDesc (event) {
       event = event || window.event
 
@@ -167,12 +179,17 @@ export default {
         event.preventDefault()
         event.returnValue = false
 
-        if (this.description.trim()) {
-          this.isEditDesc = false
-          this.params.package.description = this.description
-        } else {
-          this.$Message.warning('The description is not valid.')
-        }
+        this.editDesc()
+      }
+    },
+
+    // edit description
+    editDesc () {
+      if (this.description.trim()) {
+        this.isEditDesc = false
+        this.params.package.description = this.description
+      } else {
+        this.$Message.warning('The description is not valid.')
       }
     },
 
