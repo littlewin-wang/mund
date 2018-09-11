@@ -43,7 +43,7 @@
             <Col span="5" style="cursor: pointer">
               <span @click="handleReverse('name')">Project Name <Icon :type="name?'chevron-down':'chevron-up'"></Icon></span>
             </Col>
-            <Col span="5">Tags</Col>
+            <Col span="5">Keywords</Col>
             <Col span="4" style="cursor: pointer">
               <span @click="handleReverse('modify')"> Last Modified <Icon :type="modify?'chevron-down':'chevron-up'"></Icon></span>
             </Col>
@@ -122,7 +122,6 @@ export default {
               // init project params
               let params = {}
               params.path = name
-              params.tags = []
 
               // retrieve git infomations
               params.git = {

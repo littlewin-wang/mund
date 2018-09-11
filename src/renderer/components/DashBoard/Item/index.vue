@@ -13,12 +13,12 @@
         <span v-if="isExpand" style="font-size: 12px; color: #9b9b9b">Last Modified: {{ params.stat.mtime | timeAgo }}</span>
       </Col>
       <Col span="5">
-        <div v-if="!isExpand">
-          <Tag closable :color="tagColor(tag)" :name="tag" v-for="tag in params.tags.slice(0, 2)" @on-close="handleDeleteTag">{{ tag }}</Tag>
-          <Tooltip placement="right-start" v-if="params.tags.length > 2">
-            <Tag type="border">+{{ params.tags.length - 2 }}</Tag>
+        <div v-if="!isExpand && params.package.keywords && params.package.keywords.length">
+          <Tag closable :color="tagColor(tag)" :name="tag" v-for="tag in params.package.keywords.slice(0, 2)" @on-close="handleDeleteTag">{{ tag }}</Tag>
+          <Tooltip placement="right-start" v-if="params.package.keywords.length > 2">
+            <Tag type="border">+{{ params.package.keywords.length - 2 }}</Tag>
             <div slot="content" style="white-space: pre-wrap; width: 200px;">
-              <Tag closable :color="tagColor(tag)" :name="tag" v-for="tag in params.tags.slice(2)" @on-close="handleDeleteTag">{{ tag }}</Tag>
+              <Tag closable :color="tagColor(tag)" :name="tag" v-for="tag in params.package.keywords.slice(2)" @on-close="handleDeleteTag">{{ tag }}</Tag>
             </div>
           </Tooltip>
         </div>
@@ -41,10 +41,15 @@
         <Col span="20" class="project-content">
           <div class="left">
             <div class="desc">
-              <span>
-                {{ params.package.description }}
-              </span>
-              <Icon type="edit" style="margin-left: 4px;"></Icon>
+              <div v-if="!isEditDesc">
+                <span>
+                  {{ params.package.description }}
+                </span>
+                <Icon type="edit" style="margin-left: 4px; cursor: pointer;" @click="isEditDesc = true, description = params.package.description"></Icon>
+              </div>
+              <div v-else>
+                <Input type="textarea" :rows="4" v-model="description" size="small" placeholder="Input description..." @on-keypress="handleEditDesc"></Input>
+              </div>
             </div>
             <div class="version">
               <Icon class="icon" color="#2d8cf0" size="18" type="ios-information"></Icon>
@@ -65,8 +70,11 @@
           </div>
           <div class="right">
             <div class="tag">
-              <h5>Tags</h5>
-              <Tag class="tag-item" closable :color="tagColor(tag)" :name="tag" v-for="tag in params.tags" @on-close="handleDeleteTag">{{ tag }}</Tag>
+              <h5>Keywords</h5>
+              <span v-if="params.package.keywords && params.package.keywords.length">
+                <Tag class="tag-item" closable :color="tagColor(tag)" :name="tag" v-for="tag in params.package.keywords" @on-close="handleDeleteTag">{{ tag }}</Tag>
+              </span>
+
               <AutoComplete
                 class="tag-item"
                 v-model="newTag"
@@ -103,6 +111,8 @@
 </template>
 
 <script>
+import wordToRGB from '@/utils/wordToRGB'
+
 export default {
   name: 'item',
   props: {
@@ -110,6 +120,8 @@ export default {
   },
   data () {
     return {
+      isEditDesc: false,
+      description: '',
       newTag: '',
       isExpand: false
     }
@@ -130,17 +142,7 @@ export default {
 
     // determine the tag color with the string
     tagColor (str) {
-      if (['dev'].find(type => str.toLowerCase().indexOf(type) !== -1)) {
-        return 'green'
-      } else if (['work', 'project'].find(type => str.toLowerCase().indexOf(type) !== -1)) {
-        return '#EF6AFF'
-      } else if (['cli', 'demo'].find(type => str.toLowerCase().indexOf(type) !== -1)) {
-        return '#FF9999'
-      } else if (['test', 'e2e'].find(type => str.toLowerCase().indexOf(type) !== -1)) {
-        return 'yellow'
-      } else {
-        return 'blue'
-      }
+      return wordToRGB(str)
     },
 
     // delete this project
@@ -157,28 +159,49 @@ export default {
       })
     },
 
+    handleEditDesc (event) {
+      event = event || window.event
+
+      if (event.keyCode === 13) {
+        // prevent origin event to go to next line
+        event.preventDefault()
+        event.returnValue = false
+
+        if (this.description.trim()) {
+          this.isEditDesc = false
+          this.params.package.description = this.description
+        } else {
+          this.$Message.warning('The description is not valid.')
+        }
+      }
+    },
+
     // add tag of the project
     handleAddTag (value) {
       if (value) {
-        if (this.params.tags.find(t => t === value)) {
-          this.$Message.warning('This tag already exists.')
+        if (this.params.package.keywords && this.params.package.keywords.length) {
+          if (this.params.package.keywords.find(t => t === value)) {
+            this.$Message.warning('This tag already exists.')
+          } else {
+            this.params.package.keywords.push(value)
+          }
         } else {
-          this.params.tags.push(value)
+          this.params.package.keywords = [ value ]
         }
-
-        this.newTag = ''
       }
     },
 
     // delete ont tag
     handleDeleteTag (event, tag) {
       if (tag) {
-        let index = this.params.tags.findIndex(t => t === tag)
+        if (this.params.package.keywords && this.params.package.keywords.length) {
+          let index = this.params.package.keywords.findIndex(t => t === tag)
 
-        if (index !== -1) {
-          this.params.tags.splice(index, 1)
-        } else {
-          this.$Message.warning('This tag not exists.')
+          if (index !== -1) {
+            this.params.package.keywords.splice(index, 1)
+          } else {
+            this.$Message.warning('This tag not exists.')
+          }
         }
       }
     },
