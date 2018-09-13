@@ -209,8 +209,8 @@ export default {
     editDesc () {
       if (this.description.trim()) {
         this.$Modal.confirm({
-          title: `update description of <b style="color: #19be6b">${this.params.package.name}</b>`,
-          content: `<b style="color: #19be6b">${this.description}</b>, confirm?`,
+          title: `update description of <b style="color: #2d8cf0">${this.params.package.name}</b>`,
+          content: `<b style="color: #19be6b">"${this.description}"</b>, confirm?`,
           onOk: () => {
             let content = JSON.parse(JSON.stringify(this.params.package))
             content.description = this.description
@@ -234,14 +234,22 @@ export default {
     },
 
     handleVersion (ver) {
-      let content = JSON.parse(JSON.stringify(this.params.package))
-      content.version = ver
+      this.$Modal.confirm({
+        title: `update version of <b style="color: #2d8cf0">${this.params.package.name}</b>`,
+        content: `<b style="color: #19be6b">"${ver}"</b>, confirm?`,
+        onOk: () => {
+          let content = JSON.parse(JSON.stringify(this.params.package))
+          content.version = ver
 
-      console.log(this.params.package.version)
-      this.$emit('update', {
-        name: this.params.path,
-        file: 'package.json',
-        content
+          this.$emit('update', {
+            name: this.params.path,
+            file: 'package.json',
+            content
+          })
+        },
+        onCancel: () => {
+          this.$Message.info('Cancle the update operation.')
+        }
       })
     },
 
@@ -252,23 +260,41 @@ export default {
           if (this.params.package.keywords.find(t => t === value)) {
             this.$Message.warning('This tag already exists.')
           } else {
-            let content = JSON.parse(JSON.stringify(this.params.package))
-            content.keywords = this.params.package.keywords.concat(value)
+            this.$Modal.confirm({
+              title: `add keyword for <b style="color: #2d8cf0">${this.params.package.name}</b>`,
+              content: `<b style="color: #19be6b">"${value}"</b>, confirm?`,
+              onOk: () => {
+                let content = JSON.parse(JSON.stringify(this.params.package))
+                content.keywords = this.params.package.keywords.concat(value)
 
-            this.$emit('update', {
-              name: this.params.path,
-              file: 'package.json',
-              content
+                this.$emit('update', {
+                  name: this.params.path,
+                  file: 'package.json',
+                  content
+                })
+              },
+              onCancel: () => {
+                this.$Message.info('Cancle the add tag operation.')
+              }
             })
           }
         } else {
-          let content = JSON.parse(JSON.stringify(this.params.package))
-          content.keywords = [ value ]
+          this.$Modal.confirm({
+            title: `add keyword for <b style="color: #2d8cf0">${this.params.package.name}</b>`,
+            content: `<b style="color: #19be6b">"${value}"</b>, confirm?`,
+            onOk: () => {
+              let content = JSON.parse(JSON.stringify(this.params.package))
+              content.keywords = [ value ]
 
-          this.$emit('update', {
-            name: this.params.path,
-            file: 'package.json',
-            content
+              this.$emit('update', {
+                name: this.params.path,
+                file: 'package.json',
+                content
+              })
+            },
+            onCancel: () => {
+              this.$Message.info('Cancle the add tag operation.')
+            }
           })
         }
       }
@@ -281,13 +307,22 @@ export default {
           let index = this.params.package.keywords.findIndex(t => t === tag)
 
           if (index !== -1) {
-            let content = JSON.parse(JSON.stringify(this.params.package))
-            content.keywords.splice(index, 1)
+            this.$Modal.confirm({
+              title: `delete keyword of <b style="color: #2d8cf0">${this.params.package.name}</b>`,
+              content: `<b style="color: #19be6b">"${tag}"</b>, confirm?`,
+              onOk: () => {
+                let content = JSON.parse(JSON.stringify(this.params.package))
+                content.keywords.splice(index, 1)
 
-            this.$emit('update', {
-              name: this.params.path,
-              file: 'package.json',
-              content
+                this.$emit('update', {
+                  name: this.params.path,
+                  file: 'package.json',
+                  content
+                })
+              },
+              onCancel: () => {
+                this.$Message.info('Cancle the delete tag operation.')
+              }
             })
           } else {
             this.$Message.warning('This tag not exists.')
