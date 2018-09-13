@@ -48,12 +48,12 @@
                 <Icon type="edit" style="margin-left: 4px; cursor: pointer;" @click="handleActiveDesc"></Icon>
               </div>
               <div v-else>
-                <Input ref="description" type="textarea" :rows="4" v-model="description" size="small" placeholder="Input description..." @on-keypress="handleEditDesc" @on-blur="editDesc"></Input>
+                <Input ref="description" type="textarea" :rows="4" v-model="description" size="small" placeholder="Input description..." @on-keypress="handleEditDesc"></Input>
               </div>
             </div>
             <div class="version">
               <Icon class="icon" color="#2d8cf0" size="18" type="ios-information"></Icon>
-              <Dropdown trigger="click" @on-click="params.package.version = arguments[0]">
+              <Dropdown trigger="click" @on-click="handleVersion">
                 <span style="cursor: pointer; user-select: none;">
                   {{ params.package.version }}
                   <Icon type="chevron-down"></Icon>
@@ -208,11 +208,41 @@ export default {
     // edit description
     editDesc () {
       if (this.description.trim()) {
-        this.isEditDesc = false
-        this.params.package.description = this.description
+        this.$Modal.confirm({
+          title: `update description of <b style="color: #19be6b">${this.params.package.name}</b>`,
+          content: `<b style="color: #19be6b">${this.description}</b>, confirm?`,
+          onOk: () => {
+            let content = JSON.parse(JSON.stringify(this.params.package))
+            content.description = this.description
+
+            this.$emit('update', {
+              name: this.params.path,
+              file: 'package.json',
+              content
+            })
+
+            this.isEditDesc = false
+          },
+          onCancel: () => {
+            this.$Message.info('Cancle the update operation.')
+            this.isEditDesc = false
+          }
+        })
       } else {
         this.$Message.warning('The description is not valid.')
       }
+    },
+
+    handleVersion (ver) {
+      let content = JSON.parse(JSON.stringify(this.params.package))
+      content.version = ver
+
+      console.log(this.params.package.version)
+      this.$emit('update', {
+        name: this.params.path,
+        file: 'package.json',
+        content
+      })
     },
 
     // add tag of the project
@@ -222,10 +252,24 @@ export default {
           if (this.params.package.keywords.find(t => t === value)) {
             this.$Message.warning('This tag already exists.')
           } else {
-            this.params.package.keywords.push(value)
+            let content = JSON.parse(JSON.stringify(this.params.package))
+            content.keywords = this.params.package.keywords.concat(value)
+
+            this.$emit('update', {
+              name: this.params.path,
+              file: 'package.json',
+              content
+            })
           }
         } else {
-          this.params.package.keywords = [ value ]
+          let content = JSON.parse(JSON.stringify(this.params.package))
+          content.keywords = [ value ]
+
+          this.$emit('update', {
+            name: this.params.path,
+            file: 'package.json',
+            content
+          })
         }
       }
     },
@@ -237,7 +281,14 @@ export default {
           let index = this.params.package.keywords.findIndex(t => t === tag)
 
           if (index !== -1) {
-            this.params.package.keywords.splice(index, 1)
+            let content = JSON.parse(JSON.stringify(this.params.package))
+            content.keywords.splice(index, 1)
+
+            this.$emit('update', {
+              name: this.params.path,
+              file: 'package.json',
+              content
+            })
           } else {
             this.$Message.warning('This tag not exists.')
           }

@@ -23,7 +23,7 @@
           <Input v-model="search" size="small" icon="ios-search" placeholder="Search For..." style="width: 200px" />
           <div class="action">
             <Button type="primary" icon="ios-lightbulb" size="small">Active Project</Button>
-            <Dropdown @on-click="importFile" trigger="click" placement="bottom-end" style="font-size: 14px;">
+            <Dropdown @on-click="importProject" trigger="click" placement="bottom-end" style="font-size: 14px;">
               <a href="javascript:void(0)">
                 <Button type="success" icon="android-add" size="small" style="margin-left: 10px">New Project</Button>
               </a>
@@ -53,7 +53,7 @@
         </div>
         <div class="list">
           <div class="container">
-            <Item class="item" v-for="(params, index) in projects" :params="params" :key="params.path" :class="{ 'is-odd' : index % 2 }" @delete="projects.splice(index, 1)"></Item>
+            <Item class="item" v-for="(params, index) in projects" :params="params" :key="params.path" :class="{ 'is-odd' : index % 2 }" @update="updateProject" @delete="projects.splice(index, 1)"></Item>
           </div>
         </div>
         <div class="pagination">
@@ -67,7 +67,7 @@
       </div>
       <h2>Looks like you don't have ant projects.</h2>
       <p>Let's fix that by importing a new project.</p>
-      <Dropdown @on-click="importFile" trigger="click" placement="bottom-end" style="font-size: 14px;">
+      <Dropdown @on-click="importProject" trigger="click" placement="bottom-end" style="font-size: 14px;">
         <a href="javascript:void(0)">
           <Button type="success" icon="android-add" style="margin-left: 10px">New Project</Button>
         </a>
@@ -86,6 +86,13 @@ import Item from './Item/index'
 
 import { parseBranch, parseUrl } from '@/utils/git/info'
 import getType from '@/utils/getProjectType'
+
+const dialog = require('electron').remote.dialog
+const path = require('path')
+const fs = require('fs')
+const util = require('util')
+const writeFile = util.promisify(fs.writeFile)
+const readFile = util.promisify(fs.readFile)
 
 export default {
   name: 'dashboard',
@@ -106,18 +113,20 @@ export default {
     changeProject (name) {
       this.project = name
     },
+
+    // reverse list
     handleReverse (type) {
       if (type && this.hasOwnProperty(type)) {
         this[type] = !this[type]
       }
     },
-    importFile (type) {
+
+    // import project
+    importProject (type) {
       if (type === 'local') {
         // open the file dialog
-        const dialog = require('electron').remote.dialog
         dialog.showOpenDialog({ properties: ['openDirectory', 'multiSelections'] }, (filename) => {
           if (filename.length) {
-            const fs = require('fs')
             filename.forEach(name => {
               // init project params
               let params = {}
@@ -136,7 +145,7 @@ export default {
               if (!fs.existsSync(name.concat('/package.json'))) {
                 throw new Error(`${name} is not a npm project.`)
               } else {
-                params.package = JSON.parse(fs.readFileSync(name.concat('/package.json')))
+                params.package = JSON.parse(fs.readFileSync(name.concat('/package.json'), 'utf-8'))
               }
 
               // retrieve all infomation correctly
@@ -149,6 +158,32 @@ export default {
             })
           }
         })
+      }
+    },
+
+    // modify project infomation
+    updateProject (params) {
+      if (params.name && params.file && params.hasOwnProperty('content')) {
+        // file exist ?
+        if (!fs.existsSync(path.join(params.name, params.file))) {
+          throw new Error(`${name} doesn't have ${params.file}`)
+        } else {
+          let project = this.projects.find(p => p.path === params.name)
+
+          if (params.file === 'package.json') {
+            // update file. first write then read
+            writeFile(path.join(params.name, params.file), JSON.stringify(params.content, null, 2))
+              .then(() => readFile(params.name.concat('/package.json'), 'utf-8'))
+              .then((data) => { project.package = JSON.parse(data) })
+              .catch((err) => { throw err })
+
+            // fs.writeFileSync(path.join(params.name, params.file), JSON.stringify(params.content, null, 2))
+            // // update project after writing
+            // project.package = JSON.parse(fs.readFileSync(params.name.concat('/package.json')))
+          } else {
+            this.$Message.warning(`Do not support modification on ${params.file} now.`)
+          }
+        }
       }
     }
   }
