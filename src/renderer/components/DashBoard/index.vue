@@ -83,10 +83,10 @@
 
 <script>
 import Item from './Item/index'
-
 import { parseBranch, parseUrl } from '@/utils/git/info'
 import getType from '@/utils/getProjectType'
 
+const { ipcRenderer } = require('electron')
 const dialog = require('electron').remote.dialog
 const path = require('path')
 const fs = require('fs')
@@ -152,6 +152,17 @@ export default {
               if (params.stat && params.package) {
                 params.types = getType(params.package)
                 this.projects.push(params)
+
+                // add monitor
+                ipcRenderer.send('watch_directory', name)
+
+                ipcRenderer.on('update_package', (event, params) => {
+                  let project = this.projects.find(p => p.path === params.path)
+
+                  if (project) {
+                    project.package = JSON.parse(params.content)
+                  }
+                })
               } else {
                 this.$Message.warning(`This directory's infomation is not correct. Check it please.`)
               }

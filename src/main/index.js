@@ -1,6 +1,8 @@
 'use strict'
 
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, ipcMain } from 'electron'
+const chokidar = require('chokidar')
+const fs = require('fs')
 
 /**
  * Set `__static` path to static files in production
@@ -75,3 +77,25 @@ app.on('ready', () => {
   if (process.env.NODE_ENV === 'production') autoUpdater.checkForUpdates()
 })
  */
+
+ipcMain.on('watch_directory', (event, path) => {
+  let watch = chokidar.watch(path)
+
+  // 添加文件事件响应
+  watch.on('change', (_path) => {
+    if (_path === path.concat('/package.json')) {
+      fs.stat(_path, (err, stats) => {
+        if (err) throw err
+
+        fs.readFile(_path, (err, data) => {
+          if (err) throw err
+
+          mainWindow.webContents.send('update_package', {
+            path,
+            content: data.toString()
+          })
+        })
+      })
+    }
+  })
+})
