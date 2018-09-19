@@ -108,7 +108,40 @@ ipcMain.on('watch_directory', function (event, path) {
 
   // watchHandler[path] = setInterval(packageCheck, 200)
 
-  let watch = chokidar.watch(path.concat('/package.json'))
+  let exclude = [
+    '**/.DS_Store',
+    '**/node_modules/**',
+    '**/vendor/**',
+    '**/.git',
+    '**/.vscode',
+    '**/.env',
+    '**/.log',
+    '.idea/**',
+    '**/*___jb_old___',
+    '**/*___jb_tmp___'
+  ]
+
+  const setExcludeRegex = (exclude) => {
+    const regexs = []
+    const Minimatch = require('minimatch').Minimatch
+
+    Object.keys(exclude).forEach(key => {
+      const value = exclude[key]
+      const minimatch = new Minimatch(value, { dot: true })
+
+      let regex = '' + minimatch.makeRe()
+      regex = regex.replace('/^', '')
+      regex = regex.replace('$/', '')
+
+      regexs.push(regex)
+    })
+
+    return new RegExp(regexs.join('|'))
+  }
+
+  let watch = chokidar.watch(path, {
+    ignored: setExcludeRegex(exclude)
+  })
 
   // add file change handler
   watch.on('change', (_path) => {
