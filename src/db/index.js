@@ -10,9 +10,11 @@ import path from 'path'
 import fs from 'fs-extra'
 import { remote, app } from 'electron'
 
+// renderer process need use remote.app
 const APP = process.type === 'renderer' ? remote.app : app
 const STORE_PATH = APP.getPath('userData')
 
+// in case file not exist
 if (process.type !== 'renderer') {
   if (!fs.pathExistsSync(STORE_PATH)) {
     fs.mkdirpSync(STORE_PATH)

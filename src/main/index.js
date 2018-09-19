@@ -1,7 +1,8 @@
 'use strict'
 
 import { app, BrowserWindow, ipcMain } from 'electron'
-const chokidar = require('chokidar')
+// import debounce from './utils/debounce'
+// const chokidar = require('chokidar')
 const fs = require('fs')
 
 /**
@@ -78,25 +79,54 @@ app.on('ready', () => {
 })
  */
 
-// add watch handler in main process
-ipcMain.on('watch_directory', (event, path) => {
-  let watch = chokidar.watch(path)
+let watchHandler = []
 
-  // add file change handler
-  watch.on('change', (_path) => {
-    if (_path === path.concat('/package.json')) {
-      fs.stat(_path, (err, stats) => {
+// add watch handler in main process
+ipcMain.on('watch_directory', function (event, path) {
+  const packageCheck = () => {
+    let _path = path.concat('/package.json')
+
+    fs.stat(_path, (err, stats) => {
+      if (err) throw err
+
+      fs.readFile(_path, (err, data) => {
         if (err) throw err
 
-        fs.readFile(_path, (err, data) => {
-          if (err) throw err
-
+        if (mainWindow && mainWindow.webContents) {
           mainWindow.webContents.send('update_package', {
             path,
             content: data.toString()
           })
-        })
+        }
       })
-    }
-  })
+    })
+  }
+
+  if (watchHandler[path]) {
+    clearInterval(watchHandler[path])
+  }
+
+  watchHandler[path] = setInterval(packageCheck, 200)
+
+  // let watch = chokidar.watch(path, {
+  //   persistent: false
+  // })
+
+  // // add file change handler
+  // watch.on('change', (_path) => {
+  //   if (_path === path.concat('/package.json')) {
+  //     fs.stat(_path, (err, stats) => {
+  //       if (err) throw err
+
+  //       fs.readFile(_path, (err, data) => {
+  //         if (err) throw err
+
+  //         mainWindow.webContents.send('update_package', {
+  //           path,
+  //           content: data.toString()
+  //         })
+  //       })
+  //     })
+  //   }
+  // })
 })

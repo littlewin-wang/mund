@@ -109,6 +109,17 @@ export default {
       projects: []
     }
   },
+  computed: {
+    list () {
+      return this.$store.state.Project.list
+    }
+  },
+  watch: {
+    list: 'handleProject'
+  },
+  mounted () {
+    this.handleProject(this.list)
+  },
   methods: {
     changeProject (name) {
       this.project = name
@@ -121,6 +132,17 @@ export default {
       }
     },
 
+    // project handler after add or delete
+    handleProject (data) {
+      if (data && data.length) {
+        data.forEach(item => {
+          if (!this.projects.find(p => p.path === item)) {
+            this.loadProject(item)
+          }
+        })
+      }
+    },
+
     // import project
     importProject (type) {
       if (type === 'local') {
@@ -128,46 +150,55 @@ export default {
         dialog.showOpenDialog({ properties: ['openDirectory', 'multiSelections'] }, (filename) => {
           if (filename.length) {
             filename.forEach(name => {
-              // init project params
-              let params = {}
-              params.path = name
+              // add to projects
+              this.$store.dispatch('addProject', name)
+            })
+          }
+        })
+      }
+    },
 
-              // retrieve git infomations
-              params.git = {
-                branch: parseBranch(name),
-                url: parseUrl(name)
-              }
+    // load projects
+    loadProject (...args) {
+      if (args.length) {
+        args.forEach((name) => {
+          // init project params
+          let params = {}
+          params.path = name
 
-              // retrieve stat infomations
-              params.stat = fs.statSync(name)
+          // retrieve git infomations
+          params.git = {
+            branch: parseBranch(name),
+            url: parseUrl(name)
+          }
 
-              // retrieve npm infomations
-              if (!fs.existsSync(name.concat('/package.json'))) {
-                throw new Error(`${name} is not a npm project.`)
-              } else {
-                params.package = JSON.parse(fs.readFileSync(name.concat('/package.json'), 'utf-8'))
-              }
+          // retrieve stat infomations
+          params.stat = fs.statSync(name)
 
-              // retrieve all infomation correctly
-              if (params.stat && params.package) {
-                params.types = getType(params.package)
-                this.projects.push(params)
+          // retrieve npm infomations
+          if (!fs.existsSync(name.concat('/package.json'))) {
+            throw new Error(`${name} is not a npm project.`)
+          } else {
+            params.package = JSON.parse(fs.readFileSync(name.concat('/package.json'), 'utf-8'))
+          }
 
-                this.$store.dispatch('addProject', name)
-                // add monitor
-                ipcRenderer.send('watch_directory', name)
+          // retrieve all infomation correctly
+          if (params.stat && params.package) {
+            params.types = getType(params.package)
 
-                ipcRenderer.on('update_package', (event, params) => {
-                  let project = this.projects.find(p => p.path === params.path)
+            // add to projects
+            this.projects.push(params)
+            // add monitor
+            ipcRenderer.send('watch_directory', name)
+            ipcRenderer.on('update_package', (event, params) => {
+              let project = this.projects.find(p => p.path === params.path)
 
-                  if (project) {
-                    project.package = JSON.parse(params.content)
-                  }
-                })
-              } else {
-                this.$Message.warning(`This directory's infomation is not correct. Check it please.`)
+              if (project) {
+                project.package = JSON.parse(params.content)
               }
             })
+          } else {
+            this.$Message.warning(`This directory's infomation is not correct. Check it please.`)
           }
         })
       }
