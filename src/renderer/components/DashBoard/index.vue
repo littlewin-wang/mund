@@ -153,6 +153,7 @@ export default {
                 params.types = getType(params.package)
                 this.projects.push(params)
 
+                this.$store.dispatch('addProject', name)
                 // add monitor
                 ipcRenderer.send('watch_directory', name)
 
