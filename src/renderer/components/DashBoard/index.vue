@@ -92,7 +92,7 @@ const path = require('path')
 const fs = require('fs')
 const util = require('util')
 const writeFile = util.promisify(fs.writeFile)
-const readFile = util.promisify(fs.readFile)
+// const readFile = util.promisify(fs.readFile)
 
 export default {
   name: 'dashboard',
@@ -179,13 +179,12 @@ export default {
         if (!fs.existsSync(path.join(params.name, params.file))) {
           throw new Error(`${name} doesn't have ${params.file}`)
         } else {
-          let project = this.projects.find(p => p.path === params.name)
-
           if (params.file === 'package.json') {
             // update file. first write then read
             writeFile(path.join(params.name, params.file), JSON.stringify(params.content, null, 2))
-              .then(() => readFile(params.name.concat('/package.json'), 'utf-8'))
-              .then((data) => { project.package = JSON.parse(data) })
+              .then(() => {
+                this.$Message.info(`write ${params.file} success.`)
+              })
               .catch((err) => { throw err })
 
             // fs.writeFileSync(path.join(params.name, params.file), JSON.stringify(params.content, null, 2))

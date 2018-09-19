@@ -78,10 +78,11 @@ app.on('ready', () => {
 })
  */
 
+// add watch handler in main process
 ipcMain.on('watch_directory', (event, path) => {
   let watch = chokidar.watch(path)
 
-  // 添加文件事件响应
+  // add file change handler
   watch.on('change', (_path) => {
     if (_path === path.concat('/package.json')) {
       fs.stat(_path, (err, stats) => {
