@@ -15,8 +15,8 @@
               <DropdownItem name="express-demo">express-demo</DropdownItem>
             </DropdownMenu>
           </Dropdown>
-          <div class="count" style="color: #9b9b9b">
-            <span>{{ total }}</span> Total
+          <div class="count" style="color: #9b9b9b" v-if="projects.length">
+            <span>{{ projects.length }}</span> Total
           </div>
         </div>
         <div class="right">
@@ -40,12 +40,12 @@
         <div class="header">
           <Row type="flex" align="middle" style="color: #9b9b9b; height: 40px;">
             <Col span="2">Type</Col>
-            <Col span="5" style="cursor: pointer">
-              <span @click="handleReverse('name')">Project Name <Icon :type="name?'chevron-down':'chevron-up'"></Icon></span>
+            <Col span="5" style="cursor: pointer; user-select: none;">
+              <span @click="handleReverse('name')">Project Name <Icon v-if="sort.name !== 'default'" :type="sort.name"></Icon></span>
             </Col>
             <Col span="5">Keywords</Col>
-            <Col span="4" style="cursor: pointer">
-              <span @click="handleReverse('modify')"> Last Modified <Icon :type="modify?'chevron-down':'chevron-up'"></Icon></span>
+            <Col span="4" style="cursor: pointer; user-select: none;">
+              <span @click="handleReverse('modify')"> Last Modified <Icon v-if="sort.modify !== 'default'" :type="sort.modify"></Icon></span>
             </Col>
             <Col span="7">NPM Script</Col>
             <Col span="1"></Col>
@@ -53,7 +53,7 @@
         </div>
         <div class="list">
           <div class="container">
-            <Item class="item" v-for="(params, index) in projects" :params="params" :key="params.path" :class="{ 'is-odd' : index % 2 }" @update="updateProject" @delete="projects.splice(index, 1)"></Item>
+            <Item class="item" v-for="(params, index) in sortedProjects" :params="params" :key="params.path" :class="{ 'is-odd' : index % 2 }" @update="updateProject" @delete="$store.dispatch('rmProject', params.path)"></Item>
           </div>
         </div>
         <div class="pagination">
@@ -102,16 +102,47 @@ export default {
   data () {
     return {
       project: '',
-      total: 3,
       search: '',
-      name: true,
-      modify: true,
+      sort: {
+        name: 'default',
+        modify: 'default'
+      },
+      name: 'default',
+      modify: 'default',
       projects: []
     }
   },
   computed: {
     list () {
       return this.$store.state.Project.list
+    },
+    sortedProjects () {
+      let key = Object.keys(this.sort).find(key => this.sort[key] !== 'default')
+      let sourceList = this.projects.slice()
+
+      if (key) {
+        if (key === 'name') {
+          if (this.sort[key] === 'chevron-down') {
+            return sourceList.sort((a, b) => a.package.name > b.package.name)
+          } else if (this.sort[key] === 'chevron-up') {
+            return sourceList.sort((a, b) => a.package.name < b.package.name)
+          } else {
+            return this.projects
+          }
+        } else if (key === 'modify') {
+          if (this.sort[key] === 'chevron-down') {
+            return sourceList.sort((a, b) => a.stat.mtime > b.stat.mtime)
+          } else if (this.sort[key] === 'chevron-up') {
+            return sourceList.sort((a, b) => a.stat.mtime < b.stat.mtime)
+          } else {
+            return this.projects
+          }
+        } else {
+          return this.projects
+        }
+      } else {
+        return this.projects
+      }
     }
   },
   watch: {
@@ -127,17 +158,52 @@ export default {
 
     // reverse list
     handleReverse (type) {
-      if (type && this.hasOwnProperty(type)) {
-        this[type] = !this[type]
+      if (type && this.sort.hasOwnProperty(type)) {
+        switch (this.sort[type]) {
+          case 'default':
+            this.sort[type] = 'chevron-down'
+
+            Object.keys(this.sort).forEach((key) => {
+              if (key !== type) {
+                this.sort[key] = 'default'
+              }
+            })
+
+            break
+          case 'chevron-down':
+            this.sort[type] = 'chevron-up'
+
+            Object.keys(this.sort).forEach((key) => {
+              if (key !== type) {
+                this.sort[key] = 'default'
+              }
+            })
+
+            break
+          case 'chevron-up':
+            this.sort[type] = 'default'
+            break
+          default:
+            this.sort[type] = 'default'
+            break
+        }
       }
     },
 
     // project handler after add or delete
     handleProject (data) {
       if (data && data.length) {
+        // add project
         data.forEach(item => {
           if (!this.projects.find(p => p.path === item)) {
             this.loadProject(item)
+          }
+        })
+
+        // delete project
+        this.projects.forEach((project, index) => {
+          if (!data.find(item => item === project.path)) {
+            this.projects.splice(index, 1)
           }
         })
       }
