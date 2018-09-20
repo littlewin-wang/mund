@@ -4,7 +4,7 @@
  */
 
 const hasModule = (entries, mod) => entries.find(([name]) => name === mod)
-// const hasModuleThatContains = (entries, mod) => entries.find(([name]) => name.includes(mod))
+const hasModuleThatContains = (entries, mod) => entries.find(([name]) => name.indexOf(mod) !== -1)
 
 // eslint-disable-next-line
 const Project_Type_Enum = {
@@ -31,9 +31,9 @@ const Project_Type_Enum = {
   },
   ANGULAR: {
     type: 'angular',
-    color: '#67daf9',
+    color: '#e70637',
     check: entries => {
-      return hasModule(entries, 'angular')
+      return hasModuleThatContains(entries, 'angular')
     }
   },
   KOA: {

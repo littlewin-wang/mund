@@ -3,20 +3,17 @@
     <div class="projects" v-if="projects.length">
       <div class="control">
         <div class="left">
-          <Dropdown @on-click="changeProject" style="font-size: 14px;">
+          <Dropdown @on-click="changeType" style="font-size: 14px;">
             <a href="javascript:void(0)">
-              {{ project || 'Projects' }}
-              <Icon type="chevron-down"></Icon>
+              <span style="display: inline-block; width: 60px; text-align: center;">{{ type }}</span>
+              <Icon type="chevron-down" style="font-size: 12px;"></Icon>
             </a>
             <DropdownMenu slot="list" >
-              <DropdownItem name="Projects">Projects</DropdownItem>
-              <DropdownItem name="vue-cli">vue-cli</DropdownItem>
-              <DropdownItem name="create-react-app">create-react-app</DropdownItem>
-              <DropdownItem name="express-demo">express-demo</DropdownItem>
+              <DropdownItem v-for="type in types" :name="type">{{ type }}</DropdownItem>
             </DropdownMenu>
           </Dropdown>
-          <div class="count" style="color: #9b9b9b" v-if="projects.length">
-            <span>{{ projects.length }}</span> Total
+          <div class="count" style="color: #9b9b9b;" v-if="projects.length">
+            <span>{{ sortedProjects.length }}</span> Total
           </div>
         </div>
         <div class="right">
@@ -101,7 +98,7 @@ export default {
   },
   data () {
     return {
-      project: '',
+      type: 'All',
       search: '',
       sort: {
         name: 'default',
@@ -115,32 +112,52 @@ export default {
     list () {
       return this.$store.state.Project.list
     },
+    types () {
+      let typeArr = ['All']
+
+      this.projects.forEach(project => {
+        project.types.forEach(type => {
+          if (typeArr.indexOf(type.type) === -1) {
+            typeArr.push(type.type)
+          }
+        })
+      })
+
+      return typeArr
+    },
     sortedProjects () {
       let key = Object.keys(this.sort).find(key => this.sort[key] !== 'default')
       let sourceList = this.projects.slice()
+      let ret = []
 
       if (key) {
         if (key === 'name') {
           if (this.sort[key] === 'chevron-down') {
-            return sourceList.sort((a, b) => a.package.name > b.package.name)
+            ret = sourceList.sort((a, b) => a.package.name < b.package.name)
           } else if (this.sort[key] === 'chevron-up') {
-            return sourceList.sort((a, b) => a.package.name < b.package.name)
+            ret = sourceList.sort((a, b) => a.package.name > b.package.name)
           } else {
-            return this.projects
+            ret = this.projects
           }
         } else if (key === 'modify') {
           if (this.sort[key] === 'chevron-down') {
-            return sourceList.sort((a, b) => a.stat.mtime > b.stat.mtime)
+            ret = sourceList.sort((a, b) => a.stat.mtime > b.stat.mtime)
           } else if (this.sort[key] === 'chevron-up') {
-            return sourceList.sort((a, b) => a.stat.mtime < b.stat.mtime)
+            ret = sourceList.sort((a, b) => a.stat.mtime < b.stat.mtime)
           } else {
-            return this.projects
+            ret = this.projects
           }
         } else {
-          return this.projects
+          ret = this.projects
         }
       } else {
-        return this.projects
+        ret = this.projects
+      }
+
+      if (this.type !== 'All') {
+        return ret.filter(item => item.types.find(t => t.type === this.type))
+      } else {
+        return ret
       }
     }
   },
@@ -151,8 +168,8 @@ export default {
     this.handleProject(this.list)
   },
   methods: {
-    changeProject (name) {
-      this.project = name
+    changeType (name) {
+      this.type = name
     },
 
     // reverse list
@@ -310,7 +327,7 @@ export default {
           display: flex;
           align-items: center;
           .count {
-            margin-left: 10px;
+            margin-left: 16px;
           }
         }
         .right {
