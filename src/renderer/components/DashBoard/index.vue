@@ -54,7 +54,7 @@
           </div>
         </div>
         <div class="pagination">
-          <Page :current="1" :total="50" simple size="small"></Page>
+          <Page :current.sync="current" :page-size="8" :total="this.$store.state.Project.list.length" simple size="small"></Page>
         </div>
       </div>
     </div>
@@ -105,12 +105,13 @@ export default {
         modify: 'default'
       },
       expandProject: '',
+      current: 1,
       projects: []
     }
   },
   computed: {
     list () {
-      return this.$store.state.Project.list
+      return this.$store.state.Project.list.slice((this.current - 1) * 8, this.current * 8)
     },
     types () {
       let typeArr = ['All']
@@ -209,17 +210,17 @@ export default {
     // project handler after add or delete
     handleProject (data) {
       if (data && data.length) {
-        // add project
-        data.forEach(item => {
-          if (!this.projects.find(p => p.path === item)) {
-            this.loadProject(item)
-          }
-        })
-
         // delete project
-        this.projects.forEach((project, index) => {
-          if (!data.find(item => item === project.path)) {
-            this.projects.splice(index, 1)
+        this.projects = this.projects.filter(p => data.includes(p.path))
+
+        // add project
+        data.forEach(name => {
+          if (!this.projects.find(p => p.path === name)) {
+            if (this.checkProject(name)) {
+              this.loadProject(name)
+            } else {
+              this.$store.dispatch('rmProject', name)
+            }
           }
         })
       }
@@ -232,12 +233,37 @@ export default {
         dialog.showOpenDialog({ properties: ['openDirectory', 'multiSelections'] }, (filename) => {
           if (filename.length) {
             filename.forEach(name => {
-              // add to projects
-              this.$store.dispatch('addProject', name)
+              if (this.checkProject(name)) {
+                // add to projects
+                this.$store.dispatch('addProject', name)
+              }
             })
           }
         })
       }
+    },
+
+    // validate project
+    checkProject (name) {
+      // check project name
+      if (!fs.existsSync(name)) {
+        this.$Message.warning(`${name} does not exist, please check.`)
+        return false
+      }
+
+      // check project git
+      if (!fs.existsSync(path.join(name, '.git/HEAD')) || !fs.existsSync(path.join(name, '.git/config'))) {
+        this.$Message.warning(`The git info of ${name} does not exist, please check.`)
+        return false
+      }
+
+      // check npm infomations
+      if (!fs.existsSync(path.join(name, 'package.json'))) {
+        this.$Message.warning(`${name} is not a npm project.`)
+        return false
+      }
+
+      return true
     },
 
     // load projects

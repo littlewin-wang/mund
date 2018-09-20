@@ -139,7 +139,7 @@ ipcMain.on('watch_directory', function (event, path) {
     return new RegExp(regexs.join('|'))
   }
 
-  let watch = chokidar.watch(path, {
+  let watch = chokidar.watch([path.concat('/package.json'), path.concat('/.git')], {
     ignored: setExcludeRegex(exclude)
   })
 
