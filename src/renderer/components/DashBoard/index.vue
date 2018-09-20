@@ -53,7 +53,7 @@
         </div>
         <div class="list">
           <div class="container">
-            <Item class="item" v-for="(params, index) in sortedProjects" :params="params" :key="params.path" :class="{ 'is-odd' : index % 2 }" @update="updateProject" @delete="$store.dispatch('rmProject', params.path)"></Item>
+            <Item class="item" v-for="(params, index) in sortedProjects" :params="params" :isExpand="expandProject === params.path" :key="params.path" :class="{ 'is-odd' : index % 2 }" @expand="expandProject = (arguments[0] ? params.path : '')" @update="updateProject" @delete="$store.dispatch('rmProject', params.path)"></Item>
           </div>
         </div>
         <div class="pagination">
@@ -107,8 +107,7 @@ export default {
         name: 'default',
         modify: 'default'
       },
-      name: 'default',
-      modify: 'default',
+      expandProject: '',
       projects: []
     }
   },

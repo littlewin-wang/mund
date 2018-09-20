@@ -32,7 +32,7 @@
         </div>
       </Col>
       <Col span="1">
-        <Button size="small" type="ghost" shape="circle" :icon="isExpand ? 'chevron-up' : 'chevron-down'" @click="isExpand=!isExpand"></Button>
+        <Button size="small" type="ghost" shape="circle" :icon="isExpand ? 'chevron-up' : 'chevron-down'" @click="$emit('expand', !isExpand)"></Button>
       </Col>
     </Row>
     <div class="detail" v-if="isExpand">
@@ -126,14 +126,14 @@ import wordToRGB from '@/utils/wordToRGB'
 export default {
   name: 'item',
   props: {
-    params: Object
+    params: Object,
+    isExpand: Boolean
   },
   data () {
     return {
       isEditDesc: false,
       description: '',
-      newTag: '',
-      isExpand: false
+      newTag: ''
     }
   },
   methods: {
