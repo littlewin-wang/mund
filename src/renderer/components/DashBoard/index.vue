@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <div class="projects" v-if="projects.length">
+    <div class="projects" v-if="this.$store.state.Project.list.length">
       <div class="control">
         <div class="left">
           <Dropdown @on-click="changeType" style="font-size: 14px;">
@@ -17,7 +17,7 @@
           </div>
         </div>
         <div class="right">
-          <Input v-model="search" size="small" icon="ios-search" placeholder="Search For..." style="width: 200px" />
+          <Input v-model="search" size="small" clearable placeholder="Search by name..." style="width: 200px" />
           <div class="action">
             <Button type="primary" icon="ios-lightbulb" size="small">Active Project</Button>
             <Dropdown @on-click="importProject" trigger="click" placement="bottom-end" style="font-size: 14px;">
@@ -54,7 +54,7 @@
           </div>
         </div>
         <div class="pagination">
-          <Page :current.sync="current" :page-size="8" :total="this.$store.state.Project.list.length" simple size="small"></Page>
+          <Page :current.sync="current" :page-size="8" :total="this.$store.state.Project.list.filter(l => l.split('/').pop().toLowerCase().indexOf(this.search.toLowerCase()) !== -1).length" simple size="small"></Page>
         </div>
       </div>
     </div>
@@ -111,7 +111,7 @@ export default {
   },
   computed: {
     list () {
-      return this.$store.state.Project.list.slice((this.current - 1) * 8, this.current * 8)
+      return this.$store.state.Project.list.filter(l => l.split('/').pop().toLowerCase().indexOf(this.search.toLowerCase()) !== -1).slice((this.current - 1) * 8, this.current * 8)
     },
     types () {
       let typeArr = ['All']
@@ -163,6 +163,9 @@ export default {
     }
   },
   watch: {
+    search: function () {
+      this.current = 1
+    },
     list: 'handleProject'
   },
   mounted () {
@@ -209,7 +212,7 @@ export default {
 
     // project handler after add or delete
     handleProject (data) {
-      if (data && data.length) {
+      if (Array.isArray(data)) {
         // delete project
         this.projects = this.projects.filter(p => data.includes(p.path))
 
