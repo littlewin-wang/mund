@@ -6,7 +6,8 @@
 import db from '@/../db/index'
 
 const state = {
-  list: db.read().get('projects').value()
+  list: db.read().get('projects').value(),
+  tags: []
 }
 
 const mutations = {
@@ -24,6 +25,20 @@ const mutations = {
       state.list.splice(index, 1)
       db.read().set('projects', state.list).write()
     }
+  },
+
+  ADD_TAG (state, tag) {
+    if (!state.tags.find(t => t === tag)) {
+      state.tags.push(tag)
+    }
+  },
+
+  RM_TAG (state, tag) {
+    let index = state.tags.findIndex(t => t === tag)
+
+    if (index !== -1) {
+      state.tags.splice(index, 1)
+    }
   }
 }
 
@@ -34,6 +49,14 @@ const actions = {
 
   rmProject ({ commit }, project) {
     commit('RM_PROJECT', project)
+  },
+
+  addTag ({ commit }, tag) {
+    commit('ADD_TAG', tag)
+  },
+
+  rmTag ({ commit }, tag) {
+    commit('RM_TAG', tag)
   }
 }
 

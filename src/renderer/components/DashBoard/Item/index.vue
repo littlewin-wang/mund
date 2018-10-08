@@ -88,14 +88,15 @@
               <AutoComplete
                 class="tag-item"
                 v-model="newTag"
-                :data="['study', 'demo', 'work', 'develop']"
+                :data="this.$store.state.Project.tags"
                 :filter-method="filterMethod"
-                placeholder="input tag"
+                placeholder="input or search tag..."
                 size="small"
                 icon="plus"
                 @keyup.enter.native="handleAddTag(newTag)"
                 @on-select="handleAddTag"
-                style="width: 80px">
+                style="width: 160px"
+                @scroll.native="handleScroll">
               </AutoComplete>
             </div>
             <div class="script">
@@ -133,7 +134,8 @@ export default {
     return {
       isEditDesc: false,
       description: '',
-      newTag: ''
+      newTag: '',
+      tagOptions: []
     }
   },
   methods: {

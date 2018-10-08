@@ -299,6 +299,16 @@ export default {
 
             // add to projects
             this.projects.push(params)
+
+            // add tag option
+            if (params.package.keywords && params.package.keywords.length) {
+              params.package.keywords.forEach(k => {
+                if (k && typeof k === 'string') {
+                  this.$store.dispatch('addTag', k)
+                }
+              })
+            }
+
             // add monitor
             ipcRenderer.send('watch_directory', name)
             ipcRenderer.on('update_package', (event, params) => {
