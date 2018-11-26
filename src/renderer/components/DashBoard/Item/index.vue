@@ -118,10 +118,10 @@
                   @on-ok="handleAddScript">
                   <Form :model="script" :label-width="80">
                     <FormItem label="Name">
-                      <Input v-model="script.name" placeholder="Enter name..."></Input>
+                      <Input v-model="script.name" placeholder="Enter npm script name..."></Input>
                     </FormItem>
                     <FormItem label="Command">
-                      <Input v-model="script.command" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="Enter command..."></Input>
+                      <Input v-model="script.command" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="Enter npm script command..."></Input>
                     </FormItem>
                   </Form>
                 </Modal>
