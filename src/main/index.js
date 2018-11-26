@@ -1,6 +1,9 @@
 'use strict'
 
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, ipcMain } from 'electron'
+// import debounce from './utils/debounce'
+const chokidar = require('chokidar')
+const fs = require('fs')
 
 /**
  * Set `__static` path to static files in production
@@ -20,9 +23,19 @@ function createWindow () {
    * Initial window options
    */
   mainWindow = new BrowserWindow({
-    height: 768,
+    title: 'Mund',
     width: 1024,
-    frame: false
+    height: 768,
+    frame: true,
+    center: true,
+    fullscreenable: false,
+    resizable: false,
+    vibrancy: 'ultra-dark',
+    titleBarStyle: 'hidden',
+    transparent: true,
+    webPreferences: {
+      backgroundThrottling: false
+    }
   })
 
   mainWindow.loadURL(winURL)
@@ -65,3 +78,86 @@ app.on('ready', () => {
   if (process.env.NODE_ENV === 'production') autoUpdater.checkForUpdates()
 })
  */
+
+// let watchHandler = []
+
+// add watch handler in main process
+ipcMain.on('watch_directory', function (event, path) {
+  // const packageCheck = () => {
+  //   let _path = path.concat('/package.json')
+
+  //   fs.stat(_path, (err, stats) => {
+  //     if (err) throw err
+
+  //     fs.readFile(_path, (err, data) => {
+  //       if (err) throw err
+
+  //       if (mainWindow && mainWindow.webContents) {
+  //         mainWindow.webContents.send('update_package', {
+  //           path,
+  //           content: data.toString()
+  //         })
+  //       }
+  //     })
+  //   })
+  // }
+
+  // if (watchHandler[path]) {
+  //   clearInterval(watchHandler[path])
+  // }
+
+  // watchHandler[path] = setInterval(packageCheck, 200)
+
+  let exclude = [
+    '**/.DS_Store',
+    '**/node_modules/**',
+    '**/vendor/**',
+    '**/.git',
+    '**/.vscode',
+    '**/.env',
+    '**/.log',
+    '.idea/**',
+    '**/*___jb_old___',
+    '**/*___jb_tmp___'
+  ]
+
+  const setExcludeRegex = (exclude) => {
+    const regexs = []
+    const Minimatch = require('minimatch').Minimatch
+
+    Object.keys(exclude).forEach(key => {
+      const value = exclude[key]
+      const minimatch = new Minimatch(value, { dot: true })
+
+      let regex = '' + minimatch.makeRe()
+      regex = regex.replace('/^', '')
+      regex = regex.replace('$/', '')
+
+      regexs.push(regex)
+    })
+
+    return new RegExp(regexs.join('|'))
+  }
+
+  let watch = chokidar.watch([path.concat('/package.json'), path.concat('/.git')], {
+    ignored: setExcludeRegex(exclude)
+  })
+
+  // add file change handler
+  watch.on('change', (_path) => {
+    if (_path === path.concat('/package.json')) {
+      fs.stat(_path, (err, stats) => {
+        if (err) throw err
+
+        fs.readFile(_path, (err, data) => {
+          if (err) throw err
+
+          mainWindow.webContents.send('update_package', {
+            path,
+            content: data.toString()
+          })
+        })
+      })
+    }
+  })
+})

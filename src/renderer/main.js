@@ -5,20 +5,23 @@ import App from './App'
 import router from './router'
 import store from './store'
 
-import { Icon, Tabs, TabPane } from 'iview'
-import 'iview/dist/styles/iview.css'
+import iView from 'iview'
+import '../../my-theme/dist/iview.css'
+
+import filters from './filters'
 
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'))
 Vue.http = Vue.prototype.$http = axios
 Vue.config.productionTip = false
 
-Vue.component('Icon', Icon)
-Vue.component('Tabs', Tabs)
-Vue.component('TabPane', TabPane)
+Vue.use(iView)
+
+// use fiters
+Object.keys(filters).forEach(key => Vue.filter(key, filters[key]))
 
 /* eslint-disable no-new */
 new Vue({
-  components: { App, Icon, Tabs, TabPane },
+  components: { App },
   router,
   store,
   template: '<App/>'
