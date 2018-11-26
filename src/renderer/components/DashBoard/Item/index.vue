@@ -108,9 +108,23 @@
                     <div class="script-cmd" style="width: 200px; white-space: pre-wrap;">{{ cmd }}</div>
                   </div>
                 </Tooltip>
-                <Button class="script-item" icon="ios-plus-empty" type="dashed">
+                <Button class="script-item" icon="ios-plus-empty" type="dashed" @click="isEditScript = !isEditScript">
                   Add
                 </Button>
+                <Modal
+                  title="Add a script"
+                  v-model="isEditScript"
+                  :closable="false"
+                  @on-ok="handleAddScript">
+                  <Form :model="script" :label-width="80">
+                    <FormItem label="Name">
+                      <Input v-model="script.name" placeholder="Enter name..."></Input>
+                    </FormItem>
+                    <FormItem label="Command">
+                      <Input v-model="script.command" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="Enter command..."></Input>
+                    </FormItem>
+                  </Form>
+                </Modal>
               </div>
             </div>
           </div>
@@ -134,9 +148,14 @@ export default {
   data () {
     return {
       isEditDesc: false,
+      isEditScript: false,
       description: '',
       newTag: '',
-      tagOptions: []
+      tagOptions: [],
+      script: {
+        name: '',
+        command: ''
+      }
     }
   },
   methods: {
@@ -343,6 +362,38 @@ export default {
         return option.toUpperCase().indexOf(value.toUpperCase()) !== -1
       } else {
         return false
+      }
+    },
+
+    handleAddScript () {
+      let content = JSON.parse(JSON.stringify(this.params.package))
+
+      if (content.scripts) {
+        if (Object.keys(content.scripts).includes(this.script.name)) {
+          this.$Message.warning('The script name exists.')
+          return
+        } else {
+          if (!this.script.command) {
+            this.$Message.warning('The script command illegal.')
+            return
+          } else {
+            content.scripts[this.script.name] = this.script.command
+          }
+        }
+      } else {
+        content.scripts = {}
+        content.scripts[this.script.name] = this.script.command
+      }
+
+      this.$emit('update', {
+        name: this.params.path,
+        file: 'package.json',
+        content
+      })
+
+      this.script = {
+        name: '',
+        command: ''
       }
     }
   }
