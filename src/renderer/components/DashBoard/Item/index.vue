@@ -67,7 +67,7 @@
             </div>
             <div class="git">
               <Icon class="icon" size="18" type="social-github"></Icon>
-              <a>{{ params.git.url }}</a>
+              <a href="javascript:void(0)" @click="openUrl(params.git.url)">{{ params.git.url }}</a>
               <Icon class="icon" size="18" type="network"></Icon>
               <span>{{ params.git.branch }}</span>
             </div>
@@ -123,6 +123,7 @@
 
 <script>
 import wordToRGB from '@/utils/wordToRGB'
+const { shell } = require('electron')
 
 export default {
   name: 'item',
@@ -139,6 +140,9 @@ export default {
     }
   },
   methods: {
+    openUrl (url) {
+      shell.openExternal(url)
+    },
     // determine the button type with the string
     typeColor (str) {
       if (['dev'].find(type => str.toLowerCase().indexOf(type) !== -1)) {
